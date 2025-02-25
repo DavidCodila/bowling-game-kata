@@ -28,6 +28,15 @@ public class TestGame {
     }
 
     @Test
+    public void testGetScoreAfterRollSpare_9_1_1_1() {
+        game.roll(9);
+        game.roll(1);
+        game.roll(1);
+        game.roll(1);
+        assertEquals(13, game.score());
+    }
+
+    @Test
     public void testRoll_negative1() {
         var exception = assertThrows(
                 InvalidParameterException.class,
