@@ -37,6 +37,20 @@ public class TestGame {
     }
 
     @Test
+    public void testGetScoreAfterStrike_10_1_1() {
+        game.roll(10);
+        game.roll(1);
+        game.roll(1);
+        assertEquals(14, game.score());
+    }
+
+    @Test
+    public void testRollCountAfterStrike_10() {
+        game.roll(10);
+        assertEquals(2, game.getRollCount());
+    }
+
+    @Test
     public void testRoll_negative1() {
         var exception = assertThrows(
                 InvalidParameterException.class,

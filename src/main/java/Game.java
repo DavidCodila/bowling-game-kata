@@ -13,9 +13,16 @@ public class Game {
         this.rollCount = 0;
     }
 
+    public int getRollCount() {
+        return rollCount;
+    }
+
     public void roll(int pinCount) {
         RollValidator.validateRoll(pinCount);
         frames.set(rollCount, pinCount);
+        if (isAStrike(pinCount)) {
+            rollCount++;
+        }
         rollCount++;
     }
 
@@ -26,8 +33,13 @@ public class Game {
 
     private void calculateScore() {
         frames.forEach(roll -> score += roll);
-        for (int i = 1; i < frames.size() - 3; i += 2) {
-            if (isASpare(frames.subList(i-1, i+1))) {
+        for (int i = 0; i < frames.size() - 1; i++) {
+            if (isAStrike(frames.get(i))) {
+                score += frames.get(i+2) + frames.get(i+3);
+                i++;
+                continue;
+            }
+            if (isASpare(frames.subList(i, i+2))) {
                 score += frames.get(i+1);
             }
         }
@@ -35,5 +47,9 @@ public class Game {
 
     private boolean isASpare(List<Integer> rolls) {
         return rolls.get(0) + rolls.get(1) == 10;
+    }
+
+    private boolean isAStrike(int pinCount) {
+        return pinCount == 10;
     }
 }
