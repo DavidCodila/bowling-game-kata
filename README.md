@@ -1,1 +1,1 @@
-# bowling-game-kata
+# https://kata-log.rocks/bowling-game-kata
