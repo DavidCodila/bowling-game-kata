@@ -1,1 +1,1 @@
-# https://kata-log.rocks/bowling-game-kata
+# Kata url: https://kata-log.rocks/bowling-game-kata
