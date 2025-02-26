@@ -51,6 +51,27 @@ public class TestGame {
     }
 
     @Test
+    public void testStrikeOn10thAnd11thFrames() {
+        for (int i = 0; i < 21; i++) {
+            game.roll(0);
+        }
+        game.roll(10);
+        game.roll(10);
+        assertEquals(30, game.score());
+    }
+
+    @Test
+    public void testSpareOn11thFrame() {
+        for (int i = 0; i < 20; i++) {
+            game.roll(0);
+        }
+        game.roll(1);
+        game.roll(9);
+        game.roll(1);
+        assertEquals(12, game.score());
+    }
+
+    @Test
     public void testRoll_negative1() {
         var exception = assertThrows(
                 InvalidParameterException.class,
@@ -59,16 +80,16 @@ public class TestGame {
         assertEquals(exception.getMessage(), "Can not roll less than 0");
     }
 
-//    @Test
-//    public void testTooManyRollsWithStrikes() {
-//        for (int i = 0; i < 19; i++) {
-//            game.roll(1);
-//        }
-//
-//        var exception = assertThrows(
-//                IllegalStateException.class,
-//                () -> GameValidator.validateRollScenario(22, 1)
-//        );
-//        assertEquals(exception.getMessage(), "To many rolls for a game");
-//    }
+    @Test
+    public void testNoStrikeOrSpareOn10thFrame() {
+        for (int i = 0; i < 22; i++) {
+            game.roll(1);
+        }
+        var exception = assertThrows(
+                IllegalStateException.class,
+                () -> game.roll(1)
+        );
+        assertEquals(exception.getMessage(), "To many rolls for a game");
+    }
+
 }

@@ -18,7 +18,28 @@ public class Game {
     public void roll(int pinCount) {
         GameValidator.validateRollScenario(rollCount, pinCount);
         rolls.set(rollCount, pinCount);
-        rollCount = (isAStrike(pinCount)) ? rollCount + 2 : rollCount + 1;
+        if (rollCount >= Constants.TENTH_FRAME_ROLL_COUNT) {
+            handleTenthFrame(pinCount);
+        }
+        else {
+            rollCount = (isAStrike(pinCount)) ? rollCount + 2 : rollCount + 1;
+        }
+    }
+
+    private void handleTenthFrame(int pinCount) {
+        if (isAStrike(pinCount)) {
+            rollCount++;
+        } else if (rollCount == Constants.TOTAL_POSSIBLE_ROLLS - 1) {
+            if (!isASpare(rollCount - 1)) {
+                rollCount = Constants.TOTAL_POSSIBLE_ROLLS + 1;
+            }
+            else {
+                rollCount++;
+            }
+        }
+        else {
+            rollCount++;
+        }
     }
 
     public int score() {
@@ -36,23 +57,41 @@ public class Game {
     }
 
     private void calculateBonusScore() {
-        for (int i = 0; i < rolls.size() - 1; i++) {
+        for (int i = 0; i < Constants.TENTH_FRAME_ROLL_COUNT; i++) {
             if (isAStrike(rolls.get(i))) {
                 score += rolls.get(i+2) + rolls.get(i+3);
                 i++;
                 continue;
             }
-            if (isASpare(rolls.subList(i, i+2))) {
+            if (isASpare(i)) {
                 score += rolls.get(i+1);
             }
         }
+        for (int i = Constants.TENTH_FRAME_ROLL_COUNT; i < Constants.TOTAL_POSSIBLE_ROLLS; i++) {
+            calculateBonusScoreForTenthFrame(i);
+        }
     }
 
-    private boolean isASpare(List<Integer> rolls) {
-        return rolls.get(0) + rolls.get(1) == 10;
+    private void calculateBonusScoreForTenthFrame(int index) {
+        if (isAStrike(rolls.get(index))) {
+            switch (index) {
+                case Constants.TENTH_FRAME_ROLL_COUNT:
+                    score += rolls.get(index+1) + rolls.get(index+2);
+                    break;
+                case Constants.TENTH_FRAME_ROLL_COUNT + 1:
+                    score += rolls.get(index+1);
+                    break;
+            }
+        } else if (isASpare(index - 1) && index != Constants.TOTAL_POSSIBLE_ROLLS) {
+            score += rolls.get(index+1);
+        }
+    }
+
+    private boolean isASpare(Integer rollIndex) {
+        return rolls.get(rollIndex) + rolls.get(rollIndex + 1) == 10;
     }
 
     private List<Integer> getInitalisedList() {
-        return new ArrayList<>(Collections.nCopies(Constants.TOTAL_POSSIBLE_ROLLS,0));
+        return new ArrayList<>(Collections.nCopies(Constants.TOTAL_POSSIBLE_ROLLS + 1,0));
     }
 }

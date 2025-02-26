@@ -11,7 +11,7 @@ public class TestRollValidator {
     public void testTooManyRolls() {
         var exception = assertThrows(
                 IllegalStateException.class,
-                () -> GameValidator.validateRollScenario(22, 1)
+                () -> GameValidator.validateRollScenario(Constants.TOTAL_POSSIBLE_ROLLS + 1, 1)
         );
         assertEquals(exception.getMessage(), "To many rolls for a game");
     }
