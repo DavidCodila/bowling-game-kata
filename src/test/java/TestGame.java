@@ -61,7 +61,7 @@ public class TestGame {
     }
 
     @Test
-    public void testSpareOn11thFrame() {
+    public void testSpareOn10thFrameRoll2() {
         for (int i = 0; i < 20; i++) {
             game.roll(0);
         }
@@ -69,6 +69,28 @@ public class TestGame {
         game.roll(9);
         game.roll(1);
         assertEquals(12, game.score());
+    }
+
+    @Test
+    public void testStrikeOn10thFrameRoll2() {
+        for (int i = 0; i < 20; i++) {
+            game.roll(0);
+        }
+        game.roll(0);
+        game.roll(10);
+        game.roll(1);
+        assertEquals(12, game.score());
+    }
+
+    @Test
+    public void testStrikeOn10thFrameRoll1() {
+        for (int i = 0; i < 20; i++) {
+            game.roll(0);
+        }
+        game.roll(10);
+        game.roll(1);
+        game.roll(1);
+        assertEquals(14, game.score());
     }
 
     @Test
