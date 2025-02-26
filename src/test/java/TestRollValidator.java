@@ -8,10 +8,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class TestRollValidator {
 
     @Test
+    public void testTooManyRolls() {
+        var exception = assertThrows(
+                IllegalStateException.class,
+                () -> GameValidator.validateRollScenario(22, 1)
+        );
+        assertEquals(exception.getMessage(), "To many rolls for a game");
+    }
+
+    @Test
     public void testRoll_negative1() {
         var exception = assertThrows(
                 InvalidParameterException.class,
-                () -> RollValidator.validateRoll(-1)
+                () -> GameValidator.validateRollScenario(0, -1)
         );
         assertEquals(exception.getMessage(), "Can not roll less than 0");
     }

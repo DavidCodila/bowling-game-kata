@@ -2,14 +2,12 @@ import java.util.*;
 
 public class Game {
     private int score;
-    private final int TOTAL_POSSIBLE_ROLLS = 21;
-    private final List<Integer> frames;
+    private final List<Integer> rolls;
     private int rollCount;
 
     public Game() {
         this.score = 0;
-        List<Integer> immutableList = Collections.nCopies(TOTAL_POSSIBLE_ROLLS,0);
-        this.frames = new ArrayList<>(immutableList);
+        this.rolls = getInitalisedList();
         this.rollCount = 0;
     }
 
@@ -18,29 +16,34 @@ public class Game {
     }
 
     public void roll(int pinCount) {
-        RollValidator.validateRoll(pinCount);
-        frames.set(rollCount, pinCount);
-        if (isAStrike(pinCount)) {
-            rollCount++;
-        }
-        rollCount++;
+        GameValidator.validateRollScenario(rollCount, pinCount);
+        rolls.set(rollCount, pinCount);
+        rollCount = (isAStrike(pinCount)) ? rollCount + 2 : rollCount + 1;
     }
 
     public int score() {
-        calculateScore();
+        calculateBaseScore();
+        calculateBonusScore();
         return score;
     }
 
-    private void calculateScore() {
-        frames.forEach(roll -> score += roll);
-        for (int i = 0; i < frames.size() - 1; i++) {
-            if (isAStrike(frames.get(i))) {
-                score += frames.get(i+2) + frames.get(i+3);
+    private boolean isAStrike(int pinCount) {
+        return pinCount == 10;
+    }
+
+    private void calculateBaseScore() {
+        rolls.forEach(roll -> score += roll);
+    }
+
+    private void calculateBonusScore() {
+        for (int i = 0; i < rolls.size() - 1; i++) {
+            if (isAStrike(rolls.get(i))) {
+                score += rolls.get(i+2) + rolls.get(i+3);
                 i++;
                 continue;
             }
-            if (isASpare(frames.subList(i, i+2))) {
-                score += frames.get(i+1);
+            if (isASpare(rolls.subList(i, i+2))) {
+                score += rolls.get(i+1);
             }
         }
     }
@@ -49,7 +52,7 @@ public class Game {
         return rolls.get(0) + rolls.get(1) == 10;
     }
 
-    private boolean isAStrike(int pinCount) {
-        return pinCount == 10;
+    private List<Integer> getInitalisedList() {
+        return new ArrayList<>(Collections.nCopies(Constants.TOTAL_POSSIBLE_ROLLS,0));
     }
 }

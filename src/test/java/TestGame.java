@@ -58,4 +58,17 @@ public class TestGame {
         );
         assertEquals(exception.getMessage(), "Can not roll less than 0");
     }
+
+//    @Test
+//    public void testTooManyRollsWithStrikes() {
+//        for (int i = 0; i < 19; i++) {
+//            game.roll(1);
+//        }
+//
+//        var exception = assertThrows(
+//                IllegalStateException.class,
+//                () -> GameValidator.validateRollScenario(22, 1)
+//        );
+//        assertEquals(exception.getMessage(), "To many rolls for a game");
+//    }
 }
