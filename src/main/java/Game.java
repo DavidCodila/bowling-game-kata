@@ -7,31 +7,20 @@ public class Game {
 
     public Game() {
         this.score = 0;
-        this.rolls = getInitalisedList();
         this.rollCount = 0;
-    }
-
-    public int getRollCount() {
-        return rollCount;
+        this.rolls = getInitalisedList();
     }
 
     public void roll(int pinCount) {
         GameValidator.validateRollScenario(rollCount, pinCount);
         rolls.set(rollCount, pinCount);
-        if (rollCount >= Constants.TENTH_FRAME_ROLL_COUNT) {
+        if (gameIsInTenthFrame()) {
             handleTenthFrame();
+        } else if (isAStrikeOnTheFirstRollOfAFrame(rollCount)) {
+            moveToNextFrame();
+        } else {
+            moveToNextRoll();
         }
-        else {
-            rollCount = (isAStrike(pinCount)) ? rollCount + 2 : rollCount + 1;
-        }
-    }
-
-    private void handleTenthFrame() {
-        if (rollCount == Constants.TOTAL_POSSIBLE_ROLLS - 1 && !isASpare(rollCount - 1) && !isAStrike(rolls.get(rollCount - 1))) {
-            rollCount = Constants.TOTAL_POSSIBLE_ROLLS + 1;
-            return;
-        }
-        rollCount++;
     }
 
     public int score() {
@@ -40,8 +29,47 @@ public class Game {
         return score;
     }
 
-    private boolean isAStrike(int pinCount) {
-        return pinCount == 10;
+    public int getRollCount() {
+        return rollCount;
+    }
+
+    private boolean gameIsInTenthFrame() {
+        return rollCount >= Constants.TENTH_FRAME_ROLL_COUNT;
+    }
+
+    private void handleTenthFrame() {
+        if (secondLastRollOfGameIsNotAStrikeOrSpare()) {
+            endGame();
+        }
+        else {
+            moveToNextRoll();
+        }
+    }
+
+    private boolean secondLastRollOfGameIsNotAStrikeOrSpare() {
+        return rollCount == Constants.TOTAL_POSSIBLE_ROLLS - 1
+                && !isASpare(rollCount - 1)
+                && !isAStrike(rollCount - 1);
+    }
+
+    private void endGame() {
+        rollCount = Constants.TOTAL_POSSIBLE_ROLLS + 1;
+    }
+
+    private boolean isAStrikeOnTheFirstRollOfAFrame(int index) {
+        return isAStrike(index) && (rollCount % 2 != 1);
+    }
+
+    private boolean isAStrike(int index) {
+        return rolls.get(index) == 10;
+    }
+
+    private void moveToNextFrame() {
+        rollCount += 2;
+    }
+
+    private void moveToNextRoll() {
+        rollCount++;
     }
 
     private void calculateBaseScore() {
@@ -49,32 +77,49 @@ public class Game {
     }
 
     private void calculateBonusScore() {
+        calculateBonusScoreForFramesOneToNine();
+        calculateBonusScoreForTenthFrame();
+    }
+
+    private void calculateBonusScoreForFramesOneToNine() {
         for (int i = 0; i < Constants.TENTH_FRAME_ROLL_COUNT; i++) {
-            if (isAStrike(rolls.get(i))) {
-                score += rolls.get(i+2) + rolls.get(i+3);
+            if (isAStrike(i)) {
+                addStrikeBonus(i);
                 i++;
             }
-            else if (i > 0 && isASpare(i - 1)) {
-                score += rolls.get(i+1);
+            else if (isNotFirstRoll(i) && isASpare(i - 1)) {
+                addSpareBonus(i);
             }
         }
-        calculateBonusScoreForTenthFrame();
+    }
+
+    private static boolean isNotFirstRoll(int i) {
+        return i > 0;
+    }
+
+    private void addSpareBonus(int i) {
+        score += rolls.get(i+1);
+    }
+
+    private void addStrikeBonus(int i) {
+        score += rolls.get(i+2) + rolls.get(i+3);
     }
 
     private void calculateBonusScoreForTenthFrame() {
         for (int i = Constants.TENTH_FRAME_ROLL_COUNT; i < Constants.TOTAL_POSSIBLE_ROLLS; i++) {
-            if (isAStrike(rolls.get(i))) {
-                switch (i) {
-                    case Constants.TENTH_FRAME_ROLL_COUNT:
-                        score += rolls.get(i+1) + rolls.get(i+2);
-                        break;
-                    case Constants.TENTH_FRAME_ROLL_COUNT + 1:
-                        score += rolls.get(i+1);
-                        break;
-                }
+            if (isAStrike(i)) {
+                handleStrikeBonus(i);
             } else if (isASpare(i - 1)) {
-                score += rolls.get(i+1);
+                addSpareBonus(i);
             }
+        }
+    }
+
+    private void handleStrikeBonus(int rollIndex) {
+        if (rollIndex == Constants.TENTH_FRAME_ROLL_COUNT) {
+            score += rolls.get(rollIndex + 1) + rolls.get(rollIndex + 2);
+        } else if (rollIndex == Constants.TENTH_FRAME_ROLL_COUNT + 1) {
+            score += rolls.get(rollIndex + 1);
         }
     }
 
@@ -85,4 +130,5 @@ public class Game {
     private List<Integer> getInitalisedList() {
         return new ArrayList<>(Collections.nCopies(Constants.TOTAL_POSSIBLE_ROLLS + 1,0));
     }
+
 }
